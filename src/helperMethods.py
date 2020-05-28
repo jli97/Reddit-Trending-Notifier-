@@ -6,20 +6,21 @@ import numpy as np
 from sklearn.linear_model import LinearRegression
 from scipy.stats import norm
 
-''' ----------PARAMETERS----------- '''
 reddit = praw.Reddit(client_id = 'aM_mGMSXor7avg',client_secret = 'rlfl7DoUGE74y_5UlcP2jLntoVw', username='PRAW_97', password='123456789j', user_agent='Better Trending')
 subreddit = reddit.subreddit("FrugalMaleFashionCDN")
-
-num_hours = 12
-bucket_1 = [0,4]
-bucket_2 = [4,8]
+''' ----------PARAMETERS----------- '''
+num_hours = 12      # Max age a post can be to be included in data
+bucket_1 = [0,4]    # You can edit the hour buckets
+bucket_2 = [4,8]    # [0,4] = 0 < submission_age <= 4 hours
 bucket_3 = [8,12]
+
+sample_size = 100   # Minimum sample size required for regression
 
 alpha = 0.95 # For the regression prediction interval
              # Change it between 0-1
              # Higher value = less notifications, lower value = more notifications
 ''' ------------------------------- '''
-unix_hour = 60*60
+unix_hour = 60*60 
 
 file_1 = open("bucket_1.csv", 'a+', newline='')
 file_2 = open("bucket_2.csv", 'a+', newline='')
@@ -33,7 +34,7 @@ def getSubmissions():
 
     for submission in subreddit.new(): 
         age = time.time() - submission.created_utc 
-        if(age > (num_hours*60*60)):
+        if(age > (num_hours*60*60)): 
             break
         if(age < (num_hours*60*60) and not submission.stickied): # Post is less than num_hours hrs old
             submission_list.append(submission)
@@ -55,31 +56,33 @@ def getBucketFile(submission_age):
 def analyzeSubmissions(submission_list):
     #Analysis of submissions in submission_list and returns list of trending submissions
     trending_list = []
+    try:
+        for submission in submission_list:
+            age = getAge(submission)
+            file = getBucketFile(age)
+            df = pd.read_csv(file.name)
 
-    for submission in submission_list:
-        age = getAge(submission)
-        file = getBucketFile(age)
-        df = pd.read_csv(file.name)
+            lr = regression(df)
+            if(lr == None):
+                continue
+            lr_input = np.array([age]).reshape(-1,1)
+            prediction = lr.predict(lr_input)
 
-        lr = regression(df)
-        if(lr == None):
-            continue
-        lr_input = np.array([age]).reshape(-1,1)
-        prediction = lr.predict(lr_input)
+            y_actual = df['upvotes'].values.reshape(-1,1)
+            x = df['age'].values.reshape(-1,1)
+            y_model = lr.predict(x)
 
-        y_actual = df['upvotes'].values.reshape(-1,1)
-        x = df['age'].values.reshape(-1,1)
-        y_model = lr.predict(x)
+            upper_prediction = getUpperPrediction(prediction, y_actual, y_model, alpha)
 
-        upper_prediction = getUpperPrediction(prediction, y_actual, y_model, alpha)
-
-        if(submission.score > upper_prediction):
-            trending_list.append(submission)
-        
-    return trending_list
+            if(submission.score > upper_prediction):
+                trending_list.append(submission)
+            
+        return trending_list
+    except:
+        print("Exception occured in analyzeSubmissions")
 
 def regression(df):
-    if(len(list(df)) < 100): #If there aren't 100 entries, dont analyze and return null
+    if(len(list(df)) < sample_size): #If there aren't enough entries based on sample_size dont analyze and return null
         return None
 
     y = df['upvotes'].values.reshape(-1,1)
@@ -118,9 +121,10 @@ def pullSubmissionData(): #Records id and upvotes for posts less than 2 days old
 
         file = getBucketFile(age)
 
+        file.seek(0,0)
         reader = csv.reader(file)
         writer = csv.writer(file)
-        if(len(list(reader)==0)):
+        if(len(list(reader)) == 0):
             writer.writerow(header)
             writer.writerow(entry)
         else:
@@ -131,9 +135,15 @@ def closeFiles():
     file_2.close
     file_3.close
 
-''' Reddit Messaging ''' 
+''' REDDIT MESSAGING ''' 
 def sendNotification(trending_list, username):
-    #compose a single mesesage with all links
-    msg =""
-    reddit.redditor(username).message("Trend Notification",msg) #Provide username to send messages to
+    if(trending_list == 0):
+        return
+    
+    msg ="The following posts(s) are trending:\n"
+
+    for submission in trending_list:
+        msg = msg + "["+submission.title+"]"+"("+submission.url+")\n"
+
+    reddit.redditor(username).message("Trending Notification",msg) 
     
