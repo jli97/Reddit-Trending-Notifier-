@@ -5,9 +5,14 @@ import pandas as pd
 import numpy as np
 from sklearn.linear_model import LinearRegression
 from scipy.stats import norm
+from configparser import ConfigParser
 
-reddit = praw.Reddit(client_id = 'aM_mGMSXor7avg',client_secret = 'rlfl7DoUGE74y_5UlcP2jLntoVw', username='PRAW_97', password='123456789j', user_agent='Better Trending')
+config = ConfigParser()
+config.read('user_info.cfg')
+
+reddit = praw.Reddit(client_id = config.get('main','client_id'),client_secret = config.get('main','client_secret'), username = config.get('main','username'), password = config.get('main','password'), user_agent='')
 subreddit = reddit.subreddit("FrugalMaleFashionCDN")
+
 ''' ----------PARAMETERS----------- '''
 num_hours = 12      # Max age a post can be to be included in data
 bucket_1 = [0,4]    # You can edit the hour buckets
