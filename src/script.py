@@ -1,8 +1,3 @@
-import pandas as pd
-import numpy as np
-from scipy.stats import norm
-import time
-from os import path
 from helperMethods import *
 
 ''' Provide your Reddit Username '''
