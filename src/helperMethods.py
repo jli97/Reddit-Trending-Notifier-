@@ -17,6 +17,8 @@ except:
 subreddit = reddit.subreddit("FrugalMaleFashionCDN")
 
 ''' ----------PARAMETERS----------- '''
+USER_NAME = config.get('main', 'username')
+
 num_hours = 12      # Max age a post can be to be included in data
 bucket_1 = [0,4]    # You can edit the hour buckets
 bucket_2 = [4,8]    # [0,4] = 0 < submission_age <= 4 hours
@@ -24,16 +26,15 @@ bucket_3 = [8,12]
 
 sample_size = 100   # Minimum sample size required for regression
 
-alpha = 0.95 # For the regression prediction interval
-             # Change it between 0-1
-             # Higher value = less notifications, lower value = more notifications
+alpha = 0.95        # For the regression prediction interval
+                    # Change it between 0-1
+                    # Higher value = less notifications, lower value = more notifications
 ''' ------------------------------- '''
 unix_hour = 60*60 
 
 file_1 = open("bucket_1.csv", 'a+', newline='')
 file_2 = open("bucket_2.csv", 'a+', newline='')
 file_3 = open("bucket_3.csv", 'a+', newline='')
-file_dict = {1:file_1, 2:file_2, 3:file_3}
 
 '''GET METHODS'''
 def getSubmissions():

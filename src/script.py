@@ -1,8 +1,5 @@
 from helperMethods import *
 
-''' Provide your Reddit Username '''
-USER_NAME = ""
-''' ---------------------------- '''
 def main():
         submission_list = getSubmissions()
         
