@@ -1,3 +1,4 @@
+from pathlib import Path
 import time
 import praw
 import csv
@@ -32,9 +33,10 @@ alpha = 0.95        # For the regression prediction interval
 ''' ------------------------------- '''
 unix_hour = 60*60 
 
-file_1 = open("bucket_1.csv", 'a+', newline='')
-file_2 = open("bucket_2.csv", 'a+', newline='')
-file_3 = open("bucket_3.csv", 'a+', newline='')
+data_folder = Path("datafiles")
+file_1 = open(data_folder / "bucket_1.csv", 'a+', newline='')
+file_2 = open(data_folder / "bucket_2.csv", 'a+', newline='')
+file_3 = open(data_folder / "bucket_3.csv", 'a+', newline='')
 
 '''GET METHODS'''
 def getSubmissions():
