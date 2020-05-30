@@ -17,7 +17,7 @@ except:
 subreddit = reddit.subreddit("FrugalMaleFashionCDN")
 
 ''' ----------PARAMETERS----------- '''
-USER_NAME = config.get('main', 'username')
+USER_NAME = config.get('main', 'username') # Account the message is sent to, can be replaced with another username
 
 num_hours = 12      # Max age a post can be to be included in data
 bucket_1 = [0,4]    # You can edit the hour buckets
@@ -155,5 +155,8 @@ def sendNotification(trending_list, username):
     for submission in trending_list:
         msg = msg + "["+submission.title+"]"+"("+submission.url+")\n"
 
-    reddit.redditor(username).message("Trending Notification",msg) 
-    
+    try:
+        reddit.redditor(username).message("Trending Notification",msg) 
+    except Exception as e:
+        print(e)
+        
