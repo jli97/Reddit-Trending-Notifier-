@@ -33,7 +33,7 @@ alpha = 0.95        # For the regression prediction interval
 ''' ------------------------------- '''
 unix_hour = 60*60 
 
-data_folder = Path("datafiles")
+data_folder = Path(__file__).parent.parent.absolute() / "datafiles"
 file_1 = open(data_folder / "bucket_1.csv", 'a+', newline='')
 file_2 = open(data_folder / "bucket_2.csv", 'a+', newline='')
 file_3 = open(data_folder / "bucket_3.csv", 'a+', newline='')
