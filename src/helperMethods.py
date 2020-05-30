@@ -7,10 +7,13 @@ from sklearn.linear_model import LinearRegression
 from scipy.stats import norm
 from configparser import ConfigParser
 
-config = ConfigParser()
-config.read('user_info.cfg')
+try:
+    config = ConfigParser()
+    config.read('user_info.cfg')
+except:
+    print("Error Occured in Config file")
 
-reddit = praw.Reddit(client_id = config.get('main','client_id'),client_secret = config.get('main','client_secret'), username = config.get('main','username'), password = config.get('main','password'), user_agent='')
+reddit = praw.Reddit(client_id = config.get('main','client_id'),client_secret = config.get('main','client_secret'), username = config.get('main','username'), password = config.get('main','password'), user_agent='placeholder')
 subreddit = reddit.subreddit("FrugalMaleFashionCDN")
 
 ''' ----------PARAMETERS----------- '''
@@ -37,7 +40,7 @@ def getSubmissions():
     #Return submission_list
     submission_list = []
 
-    for submission in subreddit.new(): 
+    for submission in subreddit.new(limit=100): 
         age = time.time() - submission.created_utc 
         if(age > (num_hours*60*60)): 
             break
@@ -81,10 +84,10 @@ def analyzeSubmissions(submission_list):
 
             if(submission.score > upper_prediction):
                 trending_list.append(submission)
-            
+        
         return trending_list
     except:
-        print("Exception occured in analyzeSubmissions")
+        print("An Exception Occured in analyzeSubmissions")
 
 def regression(df):
     if(len(list(df)) < sample_size): #If there aren't enough entries based on sample_size dont analyze and return null
