@@ -10,10 +10,10 @@ from configparser import ConfigParser
 try:
     config = ConfigParser()
     config.read('user_info.cfg')
+    reddit = praw.Reddit(client_id = config.get('main','client_id'),client_secret = config.get('main','client_secret'), username = config.get('main','username'), password = config.get('main','password'), user_agent='placeholder')
 except:
-    print("Error Occured in Config file")
+    print("Error Occured in Reddit Authentication and/or Config file")
 
-reddit = praw.Reddit(client_id = config.get('main','client_id'),client_secret = config.get('main','client_secret'), username = config.get('main','username'), password = config.get('main','password'), user_agent='placeholder')
 subreddit = reddit.subreddit("FrugalMaleFashionCDN")
 
 ''' ----------PARAMETERS----------- '''
@@ -40,7 +40,7 @@ def getSubmissions():
     #Return submission_list
     submission_list = []
 
-    for submission in subreddit.new(limit=100): 
+    for submission in subreddit.new(): 
         age = time.time() - submission.created_utc 
         if(age > (num_hours*60*60)): 
             break
@@ -95,10 +95,11 @@ def regression(df):
 
     y = df['upvotes'].values.reshape(-1,1)
     x = df['age'].values.reshape(-1,1)
-
-    ret = LinearRegression(fit_intercept=False).fit(x,y)
-
-    return ret
+    try:
+        lr_obj = LinearRegression(fit_intercept=False).fit(x,y)
+    except Exception as e:
+        print(e)
+    return lr_obj
 
 def getUpperPrediction(prediction, y_actual, y_model, alpha):
     #stdev of y_actual
@@ -114,7 +115,7 @@ def getUpperPrediction(prediction, y_actual, y_model, alpha):
     ret = prediction + interval
     return ret
 
-''' I/O Methods ''' 
+''' I/O METHODS ''' 
 def pullSubmissionData(): #Records id and upvotes for posts less than 2 days old in a csv
     header = ["id", "upvotes", "age"]
 
@@ -145,7 +146,7 @@ def closeFiles():
 
 ''' REDDIT MESSAGING ''' 
 def sendNotification(trending_list, username):
-    if(trending_list == 0):
+    if(len(trending_list) == 0):
         return
     
     msg ="The following posts(s) are trending:\n"
