@@ -27,7 +27,4 @@ The script runs with the help of a script automation software/service. Everytime
 
 At the end, the new submissions will be added to the dataset. Datasets are split into 3 buckets based on age ranges which allows for more accurate models (upvotes tend to accelerate in the first couple hours and then trail off). Datasets also have a max sample size and will automatically delete the oldest entries to make space for new entries. 
 
-## Customization 
-The sciprt is highly customizable. Within helperMethods.py there is a PARAMETERS section to customize the script to fit your needs.
-
-If you want to use the script for another subreddit, you will need to delete the existing csv files in the datafiles folder and change the subreddit variable in helperMethods.py. 
+The script is highly customizable. In helperMethods, there is a "Paramaters" section that allows you to customize how the data is collected and how strict you want the model to be (how often a post is considered significant). 
