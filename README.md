@@ -23,7 +23,9 @@ Setting up Task Scheduler
 Once that is done, the script is ready to go. 
 
 ## How it Works
-The script runs with the help of a script automation software/service. Everytime it runs, it pulls new submissions from the provided subreddit and analyzes each submission to determine whether or not it is "trending". To determine whether the post is trending, the script takes the existing data and runs a linear regression. It then uses the model to determine whether the new submission is significant enough to warrant a notifiacation. At the end, the new submissions will be added to the dataset. Datasets are split into 3 buckets based on age ranges which allows for more accurate models (upvotes tend to accelerate in the first couple hours and then trail off). Datasets also have a max sample size and will automatically delete the oldest entries to make space for new entries. 
+The script runs with the help of a script automation software/service. Everytime it runs, it pulls new submissions from the provided subreddit and analyzes each submission to determine whether or not it is "trending". To determine whether the post is trending, the script takes the existing data and runs a linear regression. It then uses the model to determine whether the new submission is significant enough to warrant a notifiacation. 
+
+At the end, the new submissions will be added to the dataset. Datasets are split into 3 buckets based on age ranges which allows for more accurate models (upvotes tend to accelerate in the first couple hours and then trail off). Datasets also have a max sample size and will automatically delete the oldest entries to make space for new entries. 
 
 ## Customization 
 The sciprt is highly customizable. Within helperMethods.py there is a PARAMETERS section to customize the script to fit your needs.
