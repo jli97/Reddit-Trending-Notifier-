@@ -15,9 +15,9 @@ try:
 except:
     print("Error Occured in Reddit Authentication and/or Config file")
 
+''' ----------PARAMETERS----------- '''
 subreddit = reddit.subreddit("FrugalMaleFashionCDN")
 
-''' ----------PARAMETERS----------- '''
 USER_NAME = config.get('main', 'username') # Account the message is sent to, can be replaced with another username
 
 num_hours = 12      # Max age a post can be to be included in data
@@ -36,9 +36,9 @@ unix_hour = 60*60
 path = Path(__file__).absolute()                    # Needs to be written with two lines for windows task scheduler to work 
 data_folder = path.parent.parent / "datafiles"      # Bug with task scheduler's usage of absolute paths
 
-file_1 = open(data_folder / "bucket_1.csv", 'a+', newline='')
-file_2 = open(data_folder / "bucket_2.csv", 'a+', newline='')
-file_3 = open(data_folder / "bucket_3.csv", 'a+', newline='')
+file_1 = open(data_folder / str(subreddit.display_name +"_bucket_1.csv"), 'a+', newline='')
+file_2 = open(data_folder / str(subreddit.display_name +"_bucket_2.csv"), 'a+', newline='')
+file_3 = open(data_folder / str(subreddit.display_name +"_bucket_3.csv"), 'a+', newline='')
 
 '''GET METHODS'''
 def getSubmissions():
