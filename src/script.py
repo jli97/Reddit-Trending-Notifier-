@@ -6,12 +6,12 @@ def main():
         trending_list = analyzeSubmissions(submission_list)
 
         if(trending_list == None or len(trending_list) == 0):
-            closeFiles()
             pullSubmissionData()
+            closeFiles()
         else:
             sendNotification(trending_list, USER_NAME)
-            closeFiles()
             pullSubmissionData()
+            closeFiles()
 
 if __name__ == "__main__":
     main()

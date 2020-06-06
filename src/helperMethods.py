@@ -33,7 +33,9 @@ alpha = 0.95        # For the regression prediction interval
 ''' ------------------------------- '''
 unix_hour = 60*60 
 
-data_folder = Path(__file__).parent.parent.absolute() / "datafiles"
+path = Path(__file__).absolute()                    # Needs to be written with two lines for windows task scheduler to work 
+data_folder = path.parent.parent / "datafiles"      # Bug with task scheduler's usage of absolute paths
+
 file_1 = open(data_folder / "bucket_1.csv", 'a+', newline='')
 file_2 = open(data_folder / "bucket_2.csv", 'a+', newline='')
 file_3 = open(data_folder / "bucket_3.csv", 'a+', newline='')
@@ -128,9 +130,13 @@ def pullSubmissionData(): #Records id and upvotes for posts less than 2 days old
             break
         if(submission.stickied):
             continue
+        
+        if(submission.upvote_ratio < 0.5 and age > 60*60): # % of upvotes, ignore negative posts that are more than 1 hour old
+            continue
 
         entry = [submission.id, submission.score, age]    
-
+        print(submission.id)
+        print(entry)
         file = getBucketFile(age)
 
         file.seek(0,0)
@@ -141,6 +147,7 @@ def pullSubmissionData(): #Records id and upvotes for posts less than 2 days old
             writer.writerow(entry)
         else:
             writer.writerow(entry)
+            print("Added to "+ file.name)
 
 def closeFiles():
     file_1.close
@@ -158,7 +165,7 @@ def sendNotification(trending_list, username):
         msg = msg + "["+submission.title+"]"+"("+submission.url+")\n"
 
     try:
-        reddit.redditor(username).message("Trending Notification",msg) 
+        reddit.redditor(username).message("Trending Notification", msg)
     except Exception as e:
         print(e)
         
