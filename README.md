@@ -14,6 +14,7 @@ Setting up Task Scheduler
 2. Create Task
 3. Select Run whether user is logged in or not (this will prevent a console from popping up each time the script is run)
 4. Go to "Actions"
+
 ![alt text](https://github.com/jli97/Reddit-Trending-Notifier-/blob/master/extras/readme_task.png)
 
 Once that is done, the script is ready to go. Have it run every hour through 
