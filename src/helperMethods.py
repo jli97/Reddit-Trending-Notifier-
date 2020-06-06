@@ -123,8 +123,11 @@ def getUpperPrediction(prediction, y_actual, y_model, alpha):
 ''' I/O METHODS ''' 
 def pullSubmissionData(): #Records id and upvotes for posts less than 2 days old in a csv
     header = ["id", "upvotes", "age"]
+    entries_1, entries_2, entries_3 = [], [], []
+    entries = [entries_1, entries_2, entries_3]
+    entries_dict = {file_1:entries_1, file_2:entries_2, file_3:entries_3}
 
-    for submission in subreddit.new():
+    for submission in subreddit.new(limit = sample_size): # Limit new entries to sample_size
         age = time.time() - submission.created_utc
         if((age > (num_hours*60*60))): #If post is older than 12 hours
             break
@@ -135,19 +138,41 @@ def pullSubmissionData(): #Records id and upvotes for posts less than 2 days old
             continue
 
         entry = [submission.id, submission.score, age]    
-        print(submission.id)
-        print(entry)
-        file = getBucketFile(age)
+        
+        list = entries_dict.get(getBucketFile(age))
+        list.append(entry)
+    
 
-        file.seek(0,0)
-        reader = csv.reader(file)
-        writer = csv.writer(file)
-        if(len(list(reader)) == 0):
+    for list_obj in entries:
+        if(len(list_obj) == 0):
+            continue
+
+        file = getBucketFile(list_obj[0][2])
+        try:
+            df = pd.read_csv(file.name)
+        except pd.io.common.EmptyDataError: #If file is empty
+            writer = csv.writer(file)
             writer.writerow(header)
-            writer.writerow(entry)
+            for entry in list_obj:
+                writer.writerow(entry)
+            continue
+
+        if((df['id'].count() + len(list_obj)) > sample_size): # If new additions exceed sample_size
+            df = df.shift(-(len(list_obj) - (sample_size - df['id'].count()))) # Make space for new entries (number of new entries - available space)
+            print(df)
+            idx = 0
+            for i in range(sample_size - len(list_obj), sample_size):
+                df.loc[i] = list_obj[idx]
+                idx = idx + 1
+
+            df['upvotes'] = df['upvotes'].astype(int)
+            df.to_csv(file.name, index=False)
+            print(df)
         else:
-            writer.writerow(entry)
-            print("Added to "+ file.name)
+            writer = csv.writer(file)
+            for entry in list_obj:
+                writer.writerow(entry)
+            continue
 
 def closeFiles():
     file_1.close
