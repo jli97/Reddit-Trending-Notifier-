@@ -15,7 +15,7 @@ Setting up Task Scheduler
 3. Select Run whether user is logged in or not (this will prevent a console from popping up each time the script is run)
 4. Go to "Actions", and create a new Action
    - Program/script is the absolute path to python.exe
-   - Add arguments is just script.py
+   - Add arguments is "script.py"
    - Start in (optional) is the path to the src folder (C:...\Reddit-Trending-Notifier\src)
 ![alt text](https://github.com/jli97/Reddit-Trending-Notifier-/blob/master/extras/readme_task.png)
 5. Go to "Triggers", Click "Repeate task every ..." and have it run every 1 hour and for a duration of indefinitely
