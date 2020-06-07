@@ -8,6 +8,7 @@ This script was made to run with Windows Task Scheduler, but any other script au
 1. Go to your Preferences on Reddit 
 2. Click on Apps and create a new app
 3. Copy the required fields into user_info.cfg (Client_id is the text under the name of the app)
+4. Write the usernames (seperated by a comma) you want notifications to be sent to in mailing_list (e.g frozen_apple, banana_spice)
 
 **Setting up Task Scheduler**
 1. Open Task Scheduler
