@@ -27,4 +27,4 @@ The script runs with the help of a script automation software/service. Every tim
 
 At the end, the new submissions will be added to the dataset. Datasets are split into 3 buckets based on age ranges which allow a more accurate model (upvotes tend to accelerate in the first couple hours and then trail off). Datasets also have a max sample size and will automatically delete the oldest entries to make space for new entries. 
 
-The script is highly customizable. In helperMethods, there is a "Parameters" section that allows you to customize how the data is collected and how strict you want the model to be (how often a post is considered significant). 
+The script is highly customizable. In helperMethods, there is a "Parameters" section that allows you to customize how the data is collected and how strict you want the model to be (how often a post is considered significant). If you would like the notification to be sent to a different account, change the USER_NAME variable. 
