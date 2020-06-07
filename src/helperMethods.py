@@ -7,6 +7,7 @@ import numpy as np
 from sklearn.linear_model import LinearRegression
 from scipy.stats import norm
 from configparser import ConfigParser
+import sys 
 
 file_path = Path(__file__).absolute()
 
@@ -17,12 +18,12 @@ try:
     reddit = praw.Reddit(client_id = config.get('main','client_id'),client_secret = config.get('main','client_secret'), username = config.get('main','username'), password = config.get('main','password'), user_agent='placeholder')
 except:
     print("Error Occured in Reddit Authentication and/or Config file")
-    exit()
+    sys.exit()
 
 ''' ----------PARAMETERS----------- '''
 subreddit = reddit.subreddit("FrugalMaleFashionCDN")
 
-USER_NAME = config.get('main', 'username') # Account the message is sent to, can be replaced with another username
+USER_NAME_LIST = [config.get('main', 'username')] # Accounts the message is sent to, defaults to the reddit API user but can be replaced with multiple usernames
 
 num_hours = 12      # Max age a post can be to be included in data
 bucket_1 = [0,4]    # You can edit the hour buckets

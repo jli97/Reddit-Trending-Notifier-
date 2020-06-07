@@ -9,8 +9,11 @@ def main():
             updateDataFiles(submission_list)
             closeFiles()
         else:
-            sendNotification(trending_list, USER_NAME)
+            for user in USER_NAME_LIST:
+                sendNotification(trending_list, user)
+
             updateDataFiles(submission_list)
             closeFiles()
+            
 if __name__ == "__main__":
     main()
