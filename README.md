@@ -6,11 +6,11 @@ This script was made to run with Windows Task Scheduler, but any other script au
 
 **Setting up Reddit API**
 1. Go to your Preferences on Reddit 
-2. Click on Apps and create a new app
+2. Click on "Apps" and create a new app
 3. Copy the required fields into user_info.cfg (Client_id is the text under the name of the app)
-4. Place the usernames (seperated by a comma) you want notifications to be sent to in mailing_list (e.g frozen_apple, banana_spice)
+4. Place the usernames you want notifications to be sent to in the field "mailing_list" seperated by a comma (e.g frozen_apple, banana_spice)
 
-**Setting up Task Scheduler**
+**Setting up Windows Task Scheduler**
 1. Open Task Scheduler
 2. Create Task
 3. Select Run whether user is logged in or not (this will prevent a console from popping up each time the script is run)
