@@ -1,6 +1,7 @@
 from pathlib import Path
 import time
 import praw
+from prawcore import PrawcoreException
 import csv
 import pandas as pd
 import numpy as np
@@ -22,6 +23,11 @@ except:
 
 ''' ----------PARAMETERS----------- '''
 subreddit = reddit.subreddit("FrugalMaleFashionCDN")
+try: #Check if subreddit exists
+    subreddit.name
+except PrawcoreException:
+    print("Error in subreddit name")
+    sys.exit()
 
 USER_NAME_LIST = [config.get('main', 'username')] # Accounts the message is sent to, defaults to the reddit API user but can be replaced with multiple usernames
 
