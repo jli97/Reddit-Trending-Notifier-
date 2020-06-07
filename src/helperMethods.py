@@ -8,9 +8,12 @@ from sklearn.linear_model import LinearRegression
 from scipy.stats import norm
 from configparser import ConfigParser
 
+file_path = Path(__file__).absolute()
+
 try:
     config = ConfigParser()
-    config.read('user_info.cfg')
+    config_path = file_path.parent.parent / 'user_info.cfg'
+    config.read(config_path)
     reddit = praw.Reddit(client_id = config.get('main','client_id'),client_secret = config.get('main','client_secret'), username = config.get('main','username'), password = config.get('main','password'), user_agent='placeholder')
 except:
     print("Error Occured in Reddit Authentication and/or Config file")
@@ -33,9 +36,8 @@ alpha = 0.95        # For the regression prediction interval
                     # Higher value = less notifications, lower value = more notifications
 ''' ------------------------------- '''
 unix_hour = 60*60 
-
-path = Path(__file__).absolute()                    # Needs to be written with two lines for windows task scheduler to work 
-data_folder = path.parent.parent / "datafiles"      # Bug with task scheduler's usage of absolute paths
+                 
+data_folder = file_path.parent.parent / "datafiles"      
 
 file_1 = open(data_folder / str(subreddit.display_name +"_bucket_1.csv"), 'a+', newline='')
 file_2 = open(data_folder / str(subreddit.display_name +"_bucket_2.csv"), 'a+', newline='')
@@ -46,12 +48,18 @@ def getSubmissions():
     #Return submission_list
     submission_list = []
 
-    for submission in subreddit.new(): 
-        age = time.time() - submission.created_utc 
-        if(age > (num_hours*60*60)): 
+    for submission in subreddit.new(limit = sample_size): # Limit new entries to sample_size
+        age = time.time() - submission.created_utc
+        if((age > (num_hours*60*60))): #If post is older than 12 hours
             break
-        if(age < (num_hours*60*60) and not submission.stickied): # Post is less than num_hours hrs old
-            submission_list.append(submission)
+        if(submission.stickied):
+            continue
+        
+        if(submission.upvote_ratio < 0.5 and age > 60*60): # % of upvotes, ignore negative posts that are more than 1 hour old
+            continue
+        
+        submission_list.append(submission)
+
     return submission_list 
     
 def getAge(submission):
@@ -122,29 +130,20 @@ def getUpperPrediction(prediction, y_actual, y_model, alpha):
     return ret
 
 ''' I/O METHODS ''' 
-def pullSubmissionData(): #Records id and upvotes for posts less than 2 days old in a csv
+def updateDataFiles(submission_list): #Records id and upvotes for posts less than 2 days old in a csv
     header = ["id", "upvotes", "age"]
     entries_1, entries_2, entries_3 = [], [], []
     entries = [entries_1, entries_2, entries_3]
     entries_dict = {file_1:entries_1, file_2:entries_2, file_3:entries_3}
 
-    for submission in subreddit.new(limit = sample_size): # Limit new entries to sample_size
-        age = time.time() - submission.created_utc
-        if((age > (num_hours*60*60))): #If post is older than 12 hours
-            break
-        if(submission.stickied):
-            continue
-        
-        if(submission.upvote_ratio < 0.5 and age > 60*60): # % of upvotes, ignore negative posts that are more than 1 hour old
-            continue
-
+    for submission in submission_list: # Limit new entries to sample_size
+        age = getAge(submission)
         entry = [submission.id, submission.score, age]    
         
         list = entries_dict.get(getBucketFile(age))
         list.append(entry)
     
-
-    for list_obj in entries:
+    for list_obj in entries: 
         if(len(list_obj) == 0):
             continue
 
