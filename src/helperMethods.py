@@ -78,33 +78,40 @@ def getBucketFile(submission_age):
 def analyzeSubmissions(submission_list):
     #Analysis of submissions in submission_list and returns list of trending submissions
     trending_list = []
-    try:
-        for submission in submission_list:
-            age = getAge(submission)
-            file = getBucketFile(age)
-            df = pd.read_csv(file.name)
 
-            lr = regression(df)
-            if(lr == None):
-                continue
-            lr_input = np.array([age]).reshape(-1,1)
-            prediction = lr.predict(lr_input)
+    for submission in submission_list:
+        age = getAge(submission)
+        file = getBucketFile(age)
+        df = pd.read_csv(file.name)
 
-            y_actual = df['upvotes'].values.reshape(-1,1)
-            x = df['age'].values.reshape(-1,1)
-            y_model = lr.predict(x)
+        print(submission.title + ", " + str(submission.score) + ", " + str(age))
+        lr = regression(df)
+        if(lr == None):
+            continue
+        lr_input = np.array([age]).reshape(-1,1)
+        prediction = lr.predict(lr_input)
+        print("The model is " + str(lr.coef_))
+        print("input: " + str(lr_input))
+        print("prediction: " + str(prediction))
+        print("actual: "+ str(submission.score))
+        y_actual = df['upvotes'].values.reshape(-1,1)
+        x = df['age'].values.reshape(-1,1)
+        y_model = lr.predict(x)
 
-            upper_prediction = getUpperPrediction(prediction, y_actual, y_model, alpha)
-
-            if(submission.score > upper_prediction):
-                trending_list.append(submission)
+        upper_prediction = getUpperPrediction(prediction, y_actual, y_model, alpha)
         
-        return trending_list
-    except:
-        print("An Exception Occured in analyzeSubmissions")
+        print("Upper_pred: "+ str(upper_prediction) + "\n")
+        if(submission.score > upper_prediction):
+            trending_list.append(submission)
+    
+    return trending_list
+
+
 
 def regression(df):
-    if(len(list(df)) < sample_size): #If there aren't enough entries based on sample_size dont analyze and return null
+    if(df['id'].count() < sample_size): #If there aren't enough entries based on sample_size dont analyze and return null
+        print(len(list(df)))
+        print(sample_size)
         return None
 
     y = df['upvotes'].values.reshape(-1,1)
@@ -114,7 +121,7 @@ def regression(df):
     except Exception as e:
         print(e)
     return lr_obj
-
+    
 def getUpperPrediction(prediction, y_actual, y_model, alpha):
     #stdev of y_actual
     sum_errs = np.sum((y_actual - y_model)**2)
