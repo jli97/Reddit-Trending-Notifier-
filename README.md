@@ -20,7 +20,7 @@ This script was made to run with Windows Task Scheduler, but any other script au
 ![alt text](https://github.com/jli97/Reddit-Trending-Notifier-/blob/master/extras/readme_task.png)
 5. Go to "Triggers", Click "Repeat task every ..." and have it run every 1 hour and for a duration of indefinitely
 
-Once that is done, the script is ready to go. 
+Once that is done, the script is ready to go. Messages will be sent to the API user by default. This can be changed in the parameters section of helperMethods.py
 
 ## How it Works
 The script runs with the help of a script automation software/service. Every time it runs, it pulls new submissions from the provided subreddit and analyzes each submission to determine whether or not it is "trending". To determine whether the post is trending, the script takes the existing data and runs a linear regression. It then uses the model to determine whether the new submission is significant enough to warrant a notification. 
