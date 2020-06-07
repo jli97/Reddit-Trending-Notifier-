@@ -14,6 +14,7 @@ try:
     reddit = praw.Reddit(client_id = config.get('main','client_id'),client_secret = config.get('main','client_secret'), username = config.get('main','username'), password = config.get('main','password'), user_agent='placeholder')
 except:
     print("Error Occured in Reddit Authentication and/or Config file")
+    exit()
 
 ''' ----------PARAMETERS----------- '''
 subreddit = reddit.subreddit("FrugalMaleFashionCDN")
