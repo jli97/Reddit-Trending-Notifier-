@@ -9,7 +9,9 @@ def main():
             updateDataFiles(submission_list)
             closeFiles()
         else:
-            for user in USER_NAME_LIST:
+            global mailing_list
+            mailing_list = cleanMailingList(mailing_list)
+            for user in mailing_list:
                 sendNotification(trending_list, user)
 
             updateDataFiles(submission_list)

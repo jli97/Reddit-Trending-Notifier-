@@ -1,7 +1,7 @@
 from pathlib import Path
 import time
 import praw
-from prawcore import PrawcoreException
+from prawcore.exceptions import PrawcoreException
 import csv
 import pandas as pd
 import numpy as np
@@ -20,6 +20,8 @@ try:
 except:
     print("Error Occured in Reddit Authentication and/or Config file")
     sys.exit()
+
+mailing_list = config.get('main', 'mailing_list') 
 
 ''' ----------PARAMETERS----------- '''
 subreddit = reddit.subreddit("FrugalMaleFashionCDN")
@@ -203,3 +205,9 @@ def sendNotification(trending_list, username):
     except Exception as e:
         print(e)
         
+def cleanMailingList(mailing_list):
+    mailing_list = mailing_list.split(',')
+    for i in range(len(mailing_list)):
+        mailing_list[i] = mailing_list[i].strip()
+
+    return mailing_list
