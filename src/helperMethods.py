@@ -84,23 +84,18 @@ def analyzeSubmissions(submission_list):
         file = getBucketFile(age)
         df = pd.read_csv(file.name)
 
-        print(submission.title + ", " + str(submission.score) + ", " + str(age))
         lr = regression(df)
         if(lr == None):
             continue
         lr_input = np.array([age]).reshape(-1,1)
         prediction = lr.predict(lr_input)
-        print("The model is " + str(lr.coef_))
-        print("input: " + str(lr_input))
-        print("prediction: " + str(prediction))
-        print("actual: "+ str(submission.score))
+
         y_actual = df['upvotes'].values.reshape(-1,1)
         x = df['age'].values.reshape(-1,1)
         y_model = lr.predict(x)
 
         upper_prediction = getUpperPrediction(prediction, y_actual, y_model, alpha)
         
-        print("Upper_pred: "+ str(upper_prediction) + "\n")
         if(submission.score > upper_prediction):
             trending_list.append(submission)
     
@@ -121,7 +116,7 @@ def regression(df):
     except Exception as e:
         print(e)
     return lr_obj
-    
+
 def getUpperPrediction(prediction, y_actual, y_model, alpha):
     #stdev of y_actual
     sum_errs = np.sum((y_actual - y_model)**2)
