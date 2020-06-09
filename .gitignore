@@ -127,3 +127,12 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+.idea/misc.xml
+.idea/modules.xml
+.idea/Reddit-Trending-Notifier.iml
+.idea/vcs.xml
+.idea/inspectionProfiles/profiles_settings.xml
+.idea/.gitignore
+datafiles/FrugalMaleFashionCDN_bucket_1_local.csv
+datafiles/FrugalMaleFashionCDN_bucket_2_local.csv
+datafiles/FrugalMaleFashionCDN_bucket_3_local.csv
