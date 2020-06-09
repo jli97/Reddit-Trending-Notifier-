@@ -8,7 +8,7 @@ import numpy as np
 from sklearn.linear_model import LinearRegression
 from scipy.stats import norm
 from configparser import ConfigParser
-import sys 
+import sys
 
 file_path = Path(__file__).absolute()
 
@@ -21,7 +21,7 @@ except:
     print("Error Occured in Reddit Authentication and/or Config file")
     sys.exit()
 
-mailing_list = config.get('main', 'mailing_list') 
+mailing_list = config.get('main', 'mailing_list')
 
 ''' ----------PARAMETERS----------- '''
 subreddit = reddit.subreddit("FrugalMaleFashionCDN")
@@ -38,15 +38,15 @@ bucket_1 = [0,4]    # You can edit the hour buckets
 bucket_2 = [4,8]    # [0,4] = 0 < submission_age <= 4 hours
 bucket_3 = [8,12]
 
-sample_size = 100   # Minimum sample size required for regression
+sample_size = 100   # Changes the max number of entries in datafiles, decreasing the sample_size with a full dataset will delete oldest entries to shrink the dataset
 
 alpha = 0.95        # For the regression prediction interval
                     # Change it between 0-1
                     # Higher value = less notifications, lower value = more notifications
 ''' ------------------------------- '''
-unix_hour = 60*60 
-                 
-data_folder = file_path.parent.parent / "datafiles"      
+unix_hour = 60*60
+
+data_folder = file_path.parent.parent / "datafiles"
 
 file_1 = open(data_folder / str(subreddit.display_name +"_bucket_1.csv"), 'a+', newline='')
 file_2 = open(data_folder / str(subreddit.display_name +"_bucket_2.csv"), 'a+', newline='')
@@ -63,14 +63,14 @@ def getSubmissions():
             break
         if(submission.stickied):
             continue
-        
+
         if(submission.upvote_ratio < 0.5 and age > 60*60): # % of upvotes, ignore negative posts that are more than 1 hour old
             continue
-        
+
         submission_list.append(submission)
 
-    return submission_list 
-    
+    return submission_list
+
 def getAge(submission):
     return time.time() - submission.created_utc
 
@@ -104,10 +104,10 @@ def analyzeSubmissions(submission_list):
         y_model = lr.predict(x)
 
         upper_prediction = getUpperPrediction(prediction, y_actual, y_model, alpha)
-        
+
         if(submission.score > upper_prediction):
             trending_list.append(submission)
-    
+
     return trending_list
 
 
@@ -140,7 +140,7 @@ def getUpperPrediction(prediction, y_actual, y_model, alpha):
     ret = prediction + interval
     return ret
 
-''' I/O METHODS ''' 
+''' I/O METHODS '''
 def updateDataFiles(submission_list): #Records id and upvotes for posts less than 2 days old in a csv
     header = ["id", "upvotes", "age"]
     entries_1, entries_2, entries_3 = [], [], []
@@ -149,24 +149,55 @@ def updateDataFiles(submission_list): #Records id and upvotes for posts less tha
 
     for submission in submission_list: # Limit new entries to sample_size
         age = getAge(submission)
-        entry = [submission.id, submission.score, age]    
-        
+        entry = [submission.id, submission.score, age]
+
         list = entries_dict.get(getBucketFile(age))
         list.append(entry)
-    
-    for list_obj in entries: 
+
+    for list_obj in entries:
         if(len(list_obj) == 0):
             continue
 
         file = getBucketFile(list_obj[0][2])
         try:
             df = pd.read_csv(file.name)
+            num_entries = df['id'].count()
         except pd.io.common.EmptyDataError: #If file is empty
             writer = csv.writer(file)
             writer.writerow(header)
             for entry in list_obj:
                 writer.writerow(entry)
             continue
+
+        #If sample_size was changed to a lower number and you have too much data
+        if(num_entries > sample_size): 
+            num_from_old = sample_size - len(list_obj)
+            print("dataframe before")
+            print(df)
+            if(num_from_old <= 0): # If you dont need any old datapoints
+                df = df.iloc[0:0] # Clears the dataframe
+        
+                for i in range(len(list_obj)):
+                    df.loc[i] = list_obj[i]
+                
+                print("dataframe after")
+                print(df)
+                df.to_csv(file.name, index=False)
+                continue
+
+            else: # Need to keep some old data
+                df = df.shift(-(num_entries - num_from_old)) #Shift upwards so that old data entries that will stay will be at the top
+                
+                df_idx = df['id'].count()
+                df = df.dropna()
+                for i in range(len(list_obj)):
+                    df.loc[df_idx] = list_obj[i]
+                    df_idx = df_idx + 1
+                
+                print("dataframe after")
+                print(df)
+                df.to_csv(file.name, index=False)
+                continue
 
         if((df['id'].count() + len(list_obj)) > sample_size): # If new additions exceed sample_size
             df = df.shift(-(len(list_obj) - (sample_size - df['id'].count()))) # Make space for new entries (number of new entries - available space)
@@ -186,15 +217,15 @@ def updateDataFiles(submission_list): #Records id and upvotes for posts less tha
             continue
 
 def closeFiles():
-    file_1.close
-    file_2.close
-    file_3.close
+    file_1.close()
+    file_2.close()
+    file_3.close()
 
-''' REDDIT MESSAGING ''' 
+''' REDDIT MESSAGING '''
 def sendNotification(trending_list, username):
     if(len(trending_list) == 0):
         return
-    
+
     msg ="The following posts(s) are trending:\n"
 
     for submission in trending_list:
@@ -204,7 +235,7 @@ def sendNotification(trending_list, username):
         reddit.redditor(username).message("Trending Notification", msg)
     except Exception as e:
         print(e)
-        
+
 def cleanMailingList(mailing_list):
     mailing_list = mailing_list.split(',')
     for i in range(len(mailing_list)):
