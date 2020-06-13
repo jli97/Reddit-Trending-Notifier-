@@ -54,7 +54,7 @@ file_3 = open(data_folder / str(subreddit.display_name +"_bucket_3.csv"), 'a+', 
 
 '''GET METHODS'''
 def getSubmissions():
-    #Return submission_list
+    #Return submission_list with reddit.submission objects
     submission_list = []
 
     for submission in subreddit.new(limit = sample_size): # Limit new entries to sample_size
@@ -85,7 +85,7 @@ def getBucketFile(submission_age):
 
 ''' ANALYSIS METHODS '''
 def analyzeSubmissions(submission_list):
-    #Analysis of submissions in submission_list and returns list of trending submissions
+    #Analysis of submissions in submission_list and returns list of trending reddit.submissions objects
     trending_list = []
 
     for submission in submission_list:
@@ -114,8 +114,6 @@ def analyzeSubmissions(submission_list):
 
 def regression(df):
     if(df['id'].count() < sample_size): #If there aren't enough entries based on sample_size dont analyze and return null
-        print(len(list(df)))
-        print(sample_size)
         return None
 
     y = df['upvotes'].values.reshape(-1,1)
@@ -226,10 +224,11 @@ def sendNotification(trending_list, username):
     if(len(trending_list) == 0):
         return
 
-    msg ="The following posts(s) are trending:\n"
+    msg ="The following posts(s) are trending:\n\n"
 
+    num = 1
     for submission in trending_list:
-        msg = msg + "["+submission.title+"]"+"("+submission.url+")\n"
+        msg = msg + num +") " + "["+submission.title+"]"+"("+submission.url+")\n\n"
 
     try:
         reddit.redditor(username).message("Trending Notification", msg)
